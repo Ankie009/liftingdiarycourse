@@ -2,6 +2,23 @@ import { db } from "@/db"
 import { workouts, workoutExercises, exercises, sets } from "@/db/schema"
 import { eq, and } from "drizzle-orm"
 import { auth } from "@clerk/nextjs/server"
+import { format } from "date-fns"
+
+export async function createWorkout(date: Date): Promise<{ id: number }> {
+  const { userId } = await auth()
+  if (!userId) throw new Error("Unauthorized")
+
+  const [workout] = await db
+    .insert(workouts)
+    .values({
+      userId,
+      date: format(date, "yyyy-MM-dd"),
+      startedAt: new Date(),
+    })
+    .returning({ id: workouts.id })
+
+  return workout
+}
 
 export type WorkoutWithExercises = {
   id: number
