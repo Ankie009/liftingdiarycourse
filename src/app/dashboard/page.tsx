@@ -1,5 +1,7 @@
+import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { buttonVariants } from "@/components/ui/button"
 import { DashboardDatePicker } from "@/components/dashboard-date-picker"
 import { getWorkoutsForDate } from "@/data/workouts"
 
@@ -18,7 +20,12 @@ export default async function DashboardPage({
 
   return (
     <div className="container mx-auto max-w-2xl py-10 px-4">
-      <h1 className="text-2xl font-semibold mb-6">Dashboard</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <Link href="/dashboard/workout/new" className={buttonVariants()}>
+          New Workout
+        </Link>
+      </div>
 
       <div className="mb-8">
         <p className="text-sm text-muted-foreground mb-2">Selected date</p>

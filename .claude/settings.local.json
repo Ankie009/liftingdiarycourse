@@ -7,7 +7,17 @@
       "mcp__neon__run_sql_transaction",
       "Bash(node *)",
       "Bash(npm install *)",
-      "Bash(npx shadcn@latest *)"
+      "Bash(npx shadcn@latest *)",
+      "PowerShell(Get-Content *)",
+      "Bash(npm run *)",
+      "Read(//tmp/**)",
+      "Bash(npx playwright *)",
+      "Bash(curl -s \"http://localhost:3000/dashboard/workout/new\")",
+      "Bash(curl -v \"http://localhost:3000/dashboard/workout/new\")",
+      "Bash(curl -s \"http://localhost:3001/dashboard/workout/new\" -o /tmp/page.html)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(netstat *)",
+      "PowerShell(npm run *)"
     ]
   },
   "enableAllProjectMcpServers": true,
