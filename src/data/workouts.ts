@@ -38,6 +38,81 @@ export type WorkoutWithExercises = {
   }[]
 }
 
+export async function getWorkoutById(workoutId: number): Promise<WorkoutWithExercises | null> {
+  const { userId } = await auth()
+  if (!userId) throw new Error("Unauthorized")
+
+  const rows = await db
+    .select({
+      workoutId: workouts.id,
+      workoutDate: workouts.date,
+      startedAt: workouts.startedAt,
+      completedAt: workouts.completedAt,
+      workoutExerciseId: workoutExercises.id,
+      exerciseId: exercises.id,
+      exerciseName: exercises.name,
+      exerciseOrder: workoutExercises.order,
+      setId: sets.id,
+      setNumber: sets.setNumber,
+      reps: sets.reps,
+      weight: sets.weight,
+    })
+    .from(workouts)
+    .leftJoin(workoutExercises, eq(workoutExercises.workoutId, workouts.id))
+    .leftJoin(exercises, eq(exercises.id, workoutExercises.exerciseId))
+    .leftJoin(sets, eq(sets.workoutExerciseId, workoutExercises.id))
+    .where(and(eq(workouts.userId, userId), eq(workouts.id, workoutId)))
+    .orderBy(workoutExercises.order, sets.setNumber)
+
+  if (rows.length === 0) return null
+
+  const workout: WorkoutWithExercises = {
+    id: rows[0].workoutId,
+    date: rows[0].workoutDate,
+    startedAt: rows[0].startedAt,
+    completedAt: rows[0].completedAt,
+    exercises: [],
+  }
+
+  const exerciseMap = new Map<number, WorkoutWithExercises["exercises"][number]>()
+
+  for (const row of rows) {
+    if (row.workoutExerciseId != null && row.exerciseId != null && row.exerciseName != null) {
+      if (!exerciseMap.has(row.workoutExerciseId)) {
+        const exercise = {
+          id: row.exerciseId,
+          name: row.exerciseName,
+          order: row.exerciseOrder ?? 0,
+          sets: [] as WorkoutWithExercises["exercises"][number]["sets"],
+        }
+        exerciseMap.set(row.workoutExerciseId, exercise)
+        workout.exercises.push(exercise)
+      }
+
+      if (row.setId != null) {
+        exerciseMap.get(row.workoutExerciseId)!.sets.push({
+          id: row.setId,
+          setNumber: row.setNumber!,
+          reps: row.reps!,
+          weight: row.weight ?? null,
+        })
+      }
+    }
+  }
+
+  return workout
+}
+
+export async function updateWorkoutDate(workoutId: number, date: Date): Promise<void> {
+  const { userId } = await auth()
+  if (!userId) throw new Error("Unauthorized")
+
+  await db
+    .update(workouts)
+    .set({ date: format(date, "yyyy-MM-dd") })
+    .where(and(eq(workouts.id, workoutId), eq(workouts.userId, userId)))
+}
+
 export async function getWorkoutsForDate(date: string): Promise<WorkoutWithExercises[]> {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthorized")

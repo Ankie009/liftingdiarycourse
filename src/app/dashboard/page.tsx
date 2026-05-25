@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
+import { auth } from "@clerk/nextjs/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { DashboardDatePicker } from "@/components/dashboard-date-picker"
@@ -10,6 +11,8 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<{ date?: string }>
 }) {
+  await auth.protect()
+
   const { date: dateParam } = await searchParams
 
   const today = format(new Date(), "yyyy-MM-dd")
