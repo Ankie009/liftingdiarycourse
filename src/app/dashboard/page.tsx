@@ -1,9 +1,9 @@
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
-import { auth } from "@clerk/nextjs/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { DashboardDatePicker } from "@/components/dashboard-date-picker"
+import { DeleteWorkoutButton } from "@/components/delete-workout-button"
 import { getWorkoutsForDate } from "@/data/workouts"
 
 export default async function DashboardPage({
@@ -11,8 +11,6 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<{ date?: string }>
 }) {
-  await auth.protect()
-
   const { date: dateParam } = await searchParams
 
   const today = format(new Date(), "yyyy-MM-dd")
@@ -45,26 +43,43 @@ export default async function DashboardPage({
             No workouts logged for this date.
           </p>
         ) : (
-          <div className="flex flex-col gap-3">
-            {workouts.map((workout) =>
-              workout.exercises.map((exercise) => (
-                <Card key={exercise.id}>
-                  <CardHeader className="pb-1 pt-4 px-5">
-                    <CardTitle className="text-base">{exercise.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="px-5 pb-4">
-                    <div className="flex flex-col gap-0.5">
-                      {exercise.sets.map((set) => (
-                        <p key={set.id} className="text-sm text-muted-foreground">
-                          Set {set.setNumber}: {set.reps} reps
-                          {set.weight ? ` — ${set.weight}kg` : ""}
-                        </p>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+          <div className="flex flex-col gap-6">
+            {workouts.map((workout) => (
+              <div key={workout.id}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-medium">{workout.title || `Workout for ${format(parseISO(workout.date), "do MMM yyyy")}`}</h3>
+                  <div className="flex items-center gap-1">
+                    <Link href={`/dashboard/workout/${workout.id}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                      Edit
+                    </Link>
+                    <DeleteWorkoutButton workoutId={workout.id} />
+                  </div>
+                </div>
+                {workout.exercises.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No exercises added yet.</p>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {workout.exercises.map((exercise) => (
+                      <Card key={exercise.workoutExerciseId}>
+                        <CardHeader className="pb-1 pt-4 px-5">
+                          <CardTitle className="text-base">{exercise.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="px-5 pb-4">
+                          <div className="flex flex-col gap-0.5">
+                            {exercise.sets.map((set) => (
+                              <p key={set.id} className="text-sm text-muted-foreground">
+                                Set {set.setNumber}: {set.reps} reps
+                                {set.weight ? ` — ${set.weight}kg` : ""}
+                              </p>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>

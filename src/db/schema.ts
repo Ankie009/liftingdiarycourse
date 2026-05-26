@@ -19,6 +19,7 @@ export const exercises = pgTable('exercises', {
 export const workouts = pgTable('workouts', {
   id:          serial('id').primaryKey(),
   userId:      text('user_id').notNull(),
+  title:       text('title').notNull().default(''),
   date:        date('date').notNull(),
   startedAt:   timestamp('started_at').notNull(),
   completedAt: timestamp('completed_at'),

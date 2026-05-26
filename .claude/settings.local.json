@@ -17,7 +17,9 @@
       "Bash(curl -s \"http://localhost:3001/dashboard/workout/new\" -o /tmp/page.html)",
       "PowerShell(Get-NetTCPConnection *)",
       "PowerShell(netstat *)",
-      "PowerShell(npm run *)"
+      "PowerShell(npm run *)",
+      "Bash(git fetch *)",
+      "Bash(Get-ChildItem *)"
     ]
   },
   "enableAllProjectMcpServers": true,
